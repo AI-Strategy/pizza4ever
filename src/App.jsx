@@ -1,18 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import MainPublicLayout from './layouts/MainPublicLayout';
-import ShopLayout from './layouts/ShopLayout';
-import CateringLayout from './layouts/CateringLayout';
-
-// Import existing and new pages
-import HomePage from './pages/HomePage';
+import DefaultLayout from './layouts/DefaultLayout';
+import OrderDashboardLayout from './layouts/OrderDashboardLayout';
+import AdminDashboardLayout from './layouts/AdminDashboardLayout';
+import SchedulingLayout from './layouts/SchedulingLayout';
+import VendorOrdersLayout from './layouts/VendorOrdersLayout';
+import IntegrationsLayout from './layouts/IntegrationsLayout';
+import SchedulingAltLayout from './layouts/SchedulingAltLayout';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import AllOrders from './pages/AllOrders';
 import Menu from './pages/Menu';
-import ReservationsPage from './pages/ReservationsPage';
-import CateringPage from './pages/CateringPage';
-import OurStoryPage from './pages/OurStoryPage';
-import ShopPage from './pages/ShopPage';
-import CareersPage from './pages/CareersPage';
-import CocktailsPage from './pages/CocktailsPage';
-import WineCurationPage from './pages/WineCurationPage';
+import Analytics from './pages/Analytics';
+import SchedulingPage from './pages/SchedulingPage';
+import SchedulingAltPage from './pages/SchedulingAltPage';
+import VendorOrdersPage from './pages/VendorOrdersPage';
+import IntegrationsPage from './pages/IntegrationsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
 import Newsletter from './pages/Newsletter';
@@ -27,19 +29,23 @@ const useAuth = () => {
     setIsAuthenticated(true);
   };
 
-// For now, we will remove the auth logic to focus on UI development
-// You can re-integrate your auth logic here later
-// import LoginPage from './pages/LoginPage';
-// import useAuth from './hooks/useAuth'; // Assuming you move useAuth to a hook file
-// const ProtectedRoute = ({ children }) => { ... };
+  const logout = () => {
+    localStorage.removeItem('isAuthenticated');
+    setIsAuthenticated(false);
+  };
 
-const RouteWithLayout = ({ Layout, Component }) => (
-  <Layout>
-    <Component />
-  </Layout>
-);
+  return { isAuthenticated, login, logout };
+};
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
 
 function App() {
+  const { login } = useAuth();
+
   return (
     <Router>
       <Routes>

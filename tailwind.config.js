@@ -1,7 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-import forms from '@tailwindcss/forms';
-import containerQueries from '@tailwindcss/container-queries';
-
 export default {
   darkMode: "class",
   content: [
@@ -40,15 +37,11 @@ export default {
         montserrat: ["Montserrat", "sans-serif"],
       },
       borderRadius: {
-        DEFAULT: "0.5rem",
-        lg: "1rem",
-        xl: "1.5rem",
-        '2xl': '2rem',
+        DEFAULT: "8px",
+        lg: "12px",
+        xl: "16px",
         full: "9999px",
       },
-       boxShadow: {
-        'input': '0 1px 2px 0 rgb(0 0 0 / 0.05), 0 0 0 4px rgb(217 93 57 / 0.1)',
-      }
     },
   },
   plugins: [
