@@ -8,39 +8,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary": "#f2590d",
-        "background-light": "#f8f6f5",
-        "background-dark": "#2C3E50",
-        "slate": {
-          800: '#1e293b',
-          700: '#334155',
-          600: '#475569',
-          500: '#64748b',
-          400: '#94a3b8',
-          300: '#cbd5e1',
-          100: '#f1f5f9',
-        },
-        "blue": {
-          400: '#60a5fa',
-        },
-        "green": {
-          400: '#4ade80',
-        }
+        "p4e-orange": "#E8772E",
+        "p4e-orange-dark": "#D46A29",
+        "p4e-grey-dark": "#333333",
+        "p4e-grey-light": "#F5F5F5",
+        "p4e-grey-accent": "#E0E0E0",
+        "p4e-black": "#121212",
+        "p4e-white": "#FFFFFF",
+        "p4e-blue": "#4A90E2",
+        "p4e-green": "#50E3C2",
+        "p4e-purple": "#9013FE",
+        "p4e-yellow": "#F8E71C",
       },
       fontFamily: {
-        "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"],
-        "body": ["Lato", "sans-serif"],
-        "heading": ["Playfair Display", "serif"],
-        "space": ["Space Grotesk", "sans-serif"],
-        "vietnam": ["Be Vietnam Pro", "sans-serif"],
-        "manrope": ["Manrope", "sans-serif"],
-        "montserrat": ["Montserrat", "sans-serif"],
+        display: ["Space Grotesk", "sans-serif"],
+        body: ["Roboto", "sans-serif"],
       },
       borderRadius: {
-        "DEFAULT": "1rem",
-        "lg": "2rem",
-        "xl": "3rem",
-        "full": "9999px"
+        DEFAULT: "8px",
+        lg: "12px",
+        xl: "16px",
+        full: "9999px",
       },
     },
   },
