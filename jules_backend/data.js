@@ -137,6 +137,21 @@ const inventory = {
     'Pepperoni': { level: 15, status: 'Critical' },
 };
 
+const timeOffRequests = [
+    { id: 1, employeeId: 2, startDate: '2024-11-01', endDate: '2024-11-01', reason: 'Personal Day', status: 'Pending' },
+    { id: 2, employeeId: 4, startDate: '2024-11-03', endDate: '2024-11-03', reason: 'Sick Leave', status: 'Approved' },
+];
+
+const shifts = [
+    // ... existing schedule data converted to a flat list
+    { id: 1, role: 'Cook', day: 'Mon, Oct 28', employeeId: 1, time: '9AM - 5PM' },
+    { id: 2, role: 'Cook', day: 'Tue, Oct 29', employeeId: 2, time: '9AM - 5PM' },
+    { id: 3, role: 'Driver', day: 'Wed, Oct 30', employeeId: 3, time: '5PM - 11PM' },
+    { id: 4, role: 'Front of House', day: 'Thu, Oct 31', employeeId: 5, time: '12PM - 8PM' },
+    { id: 5, role: 'Cook', day: 'Fri, Nov 1', employeeId: 1, time: '11AM - 7PM' },
+];
+
+
 module.exports = {
   orders,
   salesData,
@@ -144,4 +159,6 @@ module.exports = {
   employees,
   schedule,
   inventory,
+  timeOffRequests,
+  shifts
 };

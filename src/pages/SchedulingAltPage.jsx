@@ -1,4 +1,60 @@
+import { useEffect, useState } from 'react';
+
+// Mock data for employees, replace with API call if available
+const employees = [
+  { id: 1, name: 'A. Smith', role: 'Kitchen', avatar: '...' },
+  { id: 2, name: 'B. Jones', role: 'Kitchen', avatar: '...' },
+  { id: 3, name: 'C. Miller', role: 'Kitchen', avatar: '...' },
+  { id: 4, name: 'D. Chen', role: 'Kitchen', avatar: '...' },
+  { id: 5, name: 'E. Garcia', role: 'Kitchen', avatar: '...' },
+  { id: 6, name: 'F. White', role: 'Front of House', avatar: '...' },
+  { id: 7, name: 'G. Lee', role: 'Front of House', avatar: '...' },
+  { id: 8, name: 'H. Davis', role: 'Bar Staff', avatar: '...' },
+];
+
+const Shift = ({ shift }) => {
+    const employee = employees.find(e => e.id === shift.employeeId);
+    let color = 'bg-gray-500';
+    if(shift.role === "Kitchen") color = "bg-blue-500";
+    if(shift.role === "Front of House") color = "bg-teal-500";
+    if(shift.role === "Bar Staff") color = "bg-purple-500";
+
+
+    return (
+        <div className={`${color} text-white p-2 rounded-lg text-xs`}>
+            <strong>{employee ? employee.name + ':' : 'Open'}</strong> {shift.time}
+        </div>
+    );
+}
+
+
 export default function SchedulingAltPage() {
+    const [shifts, setShifts] = useState([]);
+
+    useEffect(() => {
+        const fetchSchedule = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch('http://localhost:3001/api/schedule', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setShifts(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch schedule:', error);
+            }
+        };
+        fetchSchedule();
+    }, []);
+
+    const roles = ['Kitchen', 'Front of House', 'Bar Staff', 'Catering'];
+    const days = ['Mon, Oct 30', 'Tue, Oct 31', 'Wed, Nov 1', 'Thu, Nov 2', 'Fri, Nov 3', 'Sat, Nov 4', 'Sun, Nov 5'];
+
+    const getShiftsForRoleAndDay = (role, day) => {
+        return shifts.filter(shift => shift.role === role && shift.day === day);
+    }
   return (
     <div className="flex-1 p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
       <div className="xl:col-span-3 flex flex-col gap-6">
@@ -15,68 +71,25 @@ export default function SchedulingAltPage() {
           <div className="relative w-full overflow-x-auto">
             <div className="grid" style={{gridTemplateColumns: '150px repeat(7, 1fr)', minWidth: '1200px'}}>
               <div className="sticky left-0 bg-white dark:bg-black/20 z-10"></div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
-                <p>Mon, Oct 30</p>
-                <p className="text-xs text-gray-500">62 / 65 Staffed</p>
-              </div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
-                <p>Tue, Oct 31</p>
-                <p className="text-xs text-gray-500">60 / 65 Staffed</p>
-              </div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200 bg-brand-orange/10">
-                <p>Wed, Nov 1</p>
-                <p className="text-xs text-brand-orange">55 / 68 Staffed</p>
-              </div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
-                <p>Thu, Nov 2</p>
-                <p className="text-xs text-gray-500">64 / 65 Staffed</p>
-              </div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
-                <p>Fri, Nov 3</p>
-                <p className="text-xs text-gray-500">70 / 70 Staffed</p>
-              </div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
-                <p>Sat, Nov 4</p>
-                <p className="text-xs text-gray-500">72 / 72 Staffed</p>
-              </div>
-              <div className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
-                <p>Sun, Nov 5</p>
-                <p className="text-xs text-gray-500">71 / 72 Staffed</p>
-              </div>
+              {days.map(day => (
+                <div key={day} className="text-center py-2 border-b border-gray-200 dark:border-white/10 font-semibold text-gray-800 dark:text-gray-200">
+                    <p>{day}</p>
+                </div>
+              ))}
             </div>
             <div className="grid divide-y divide-gray-200 dark:divide-white/10" style={{gridTemplateColumns: '150px repeat(7, 1fr)', minWidth: '1200px'}}>
-              <div className="sticky left-0 bg-white dark:bg-black/20 z-10 p-4 font-semibold text-gray-700 dark:text-gray-300 flex items-center">Kitchen</div>
-              <div className="p-2 space-y-1"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>A. Smith:</strong> 7am-3pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>B. Jones:</strong> 11am-7pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>C. Miller:</strong> 5pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>A. Smith:</strong> 7am-3pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>D. Chen:</strong> 11am-7pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>E. Garcia:</strong> 5pm-1am</div></div>
-              <div className="p-2 space-y-1 bg-brand-orange/10"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>A. Smith:</strong> 7am-3pm</div><div className="bg-yellow-500 text-black p-2 rounded-lg text-xs font-medium border border-dashed border-yellow-700">Open (11am-7pm)</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>C. Miller:</strong> 5pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>A. Smith:</strong> 7am-3pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>B. Jones:</strong> 11am-7pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>C. Miller:</strong> 5pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>A. Smith:</strong> 7am-3pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>D. Chen:</strong> 11am-7pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>E. Garcia:</strong> 5pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>B. Jones:</strong> 11am-7pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>C. Miller:</strong> 5pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>D. Chen:</strong> 11am-7pm</div><div className="bg-blue-500 text-white p-2 rounded-lg text-xs"><strong>E. Garcia:</strong> 5pm-1am</div></div>
-              <div className="sticky left-0 bg-white dark:bg-black/20 z-10 p-4 font-semibold text-gray-700 dark:text-gray-300 flex items-center">Front of House</div>
-              <div className="p-2 space-y-1"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>G. Lee:</strong> 4pm-12am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>G. Lee:</strong> 4pm-12am</div></div>
-              <div className="p-2 space-y-1 bg-brand-orange/10"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div><div className="bg-yellow-500 text-black p-2 rounded-lg text-xs font-medium border border-dashed border-yellow-700">Open (4pm-12am)</div></div>
-              <div className="p-2 space-y-1"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>G. Lee:</strong> 4pm-12am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>G. Lee:</strong> 4pm-12am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>G. Lee:</strong> 4pm-12am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-teal-500 text-white p-2 rounded-lg text-xs"><strong>F. White:</strong> 11am-8pm</div></div>
-              <div className="sticky left-0 bg-white dark:bg-black/20 z-10 p-4 font-semibold text-gray-700 dark:text-gray-300 flex items-center">Bar Staff</div>
-              <div className="p-2 space-y-1"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="p-2 space-y-1 bg-brand-orange/10"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="p-2 space-y-1"><div className="bg-purple-500 text-white p-2 rounded-lg text-xs"><strong>H. Davis:</strong> 3pm-1am</div></div>
-              <div className="sticky left-0 bg-white dark:bg-black/20 z-10 p-4 font-semibold text-gray-700 dark:text-gray-300 flex items-center">Catering</div>
-              <div className="p-2 space-y-1"></div>
-              <div className="p-2 space-y-1"><div className="bg-pink-500 text-white p-2 rounded-lg text-xs"><strong>Event:</strong> Lakeside Wedding (12pm-6pm)</div></div>
-              <div className="p-2 space-y-1 bg-brand-orange/10"></div>
-              <div className="p-2 space-y-1"></div>
-              <div className="p-2 space-y-1"></div>
-              <div className="p-2 space-y-1"><div className="bg-pink-500 text-white p-2 rounded-lg text-xs"><strong>Event:</strong> Ski Resort Party (4pm-10pm)</div></div>
-              <div className="p-2 space-y-1"></div>
+                {roles.map(role => (
+                    <>
+                        <div className="sticky left-0 bg-white dark:bg-black/20 z-10 p-4 font-semibold text-gray-700 dark:text-gray-300 flex items-center">{role}</div>
+                        {days.map(day => (
+                            <div key={day} className="p-2 space-y-1">
+                                {getShiftsForRoleAndDay(role, day).map(shift => (
+                                    <Shift key={shift.id} shift={shift} />
+                                ))}
+                            </div>
+                        ))}
+                    </>
+                ))}
             </div>
           </div>
         </div>

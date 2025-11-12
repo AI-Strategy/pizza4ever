@@ -138,6 +138,53 @@ app.post('/api/orders/:orderId/accept', authenticateToken, (req, res) => {
     }
 });
 
+// Scheduling Endpoints
+app.get('/api/schedule', authenticateToken, (req, res) => {
+    // In a real app, you'd likely group by day or role.
+    // For now, we'll return the flat list of shifts.
+    res.json(data.shifts);
+});
+
+app.post('/api/schedule/shift', authenticateToken, (req, res) => {
+    const newShift = req.body;
+    newShift.id = data.shifts.length + 1;
+    data.shifts.push(newShift);
+    res.status(201).json(newShift);
+});
+
+app.put('/api/schedule/shift/:shiftId', authenticateToken, (req, res) => {
+    const shift = data.shifts.find(s => s.id === parseInt(req.params.shiftId));
+    if (shift) {
+        Object.assign(shift, req.body);
+        res.json(shift);
+    } else {
+        res.status(404).json({ message: 'Shift not found' });
+    }
+});
+
+// Time-Off Endpoints
+app.get('/api/time-off/requests', authenticateToken, (req, res) => {
+    res.json(data.timeOffRequests);
+});
+
+app.post('/api/time-off/requests', authenticateToken, (req, res) => {
+    const newRequest = req.body;
+    newRequest.id = data.timeOffRequests.length + 1;
+    newRequest.status = 'Pending'; // Default status
+    data.timeOffRequests.push(newRequest);
+    res.status(201).json(newRequest);
+});
+
+app.put('/api/time-off/requests/:requestId/status', authenticateToken, (req, res) => {
+    const request = data.timeOffRequests.find(r => r.id === parseInt(req.params.requestId));
+    if (request) {
+        request.status = req.body.status; // 'Approved' or 'Denied'
+        res.json(request);
+    } else {
+        res.status(404).json({ message: 'Time-off request not found' });
+    }
+});
+
 app.post('/api/orders/:orderId/ready', authenticateToken, (req, res) => {
     const order = findOrder(req.params.orderId);
     if (order) {

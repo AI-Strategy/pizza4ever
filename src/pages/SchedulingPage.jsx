@@ -1,4 +1,54 @@
+import { useEffect, useState } from 'react';
+
+// Mock data for employees, replace with API call if available
+const employees = [
+  { id: 1, name: 'Jane D.', role: 'Cook', avatar: '...' },
+  { id: 2, name: 'John S.', role: 'Cook', avatar: '...' },
+  { id: 3, name: 'Mike R.', role: 'Driver', avatar: '...' },
+  { id: 4, name: 'Sarah L.', role: 'Driver', avatar: '...' },
+  { id: 5, name: 'Emily C.', role: 'Front of House', avatar: '...' },
+  { id: 6, name: 'David P.', role: 'Front of House', avatar: '...' },
+];
+
+const ShiftCard = ({ shift }) => {
+    const employee = employees.find(e => e.id === shift.employeeId);
+    return (
+        <div className={`cursor-pointer rounded-lg border-l-4 p-2 text-xs ${employee ? 'border-red-400 bg-red-400/20' : 'border-dashed border-gray-400 bg-gray-50 dark:bg-gray-800/50 text-center'}`}>
+            <p className="font-bold text-gray-800 dark:text-white">{employee ? employee.name : 'Unassigned'}</p>
+            <p className="text-gray-600 dark:text-gray-300">{shift.time}</p>
+        </div>
+    );
+};
+
+
 export default function SchedulingPage() {
+    const [shifts, setShifts] = useState([]);
+
+    useEffect(() => {
+        const fetchSchedule = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch('http://localhost:3001/api/schedule', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setShifts(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch schedule:', error);
+            }
+        };
+        fetchSchedule();
+    }, []);
+
+    const roles = ['Cook', 'Driver', 'Front of House'];
+    const days = ['Mon, Oct 28', 'Tue, Oct 29', 'Wed, Oct 30', 'Thu, Oct 31', 'Fri, Nov 1', 'Sat, Nov 2', 'Sun, Nov 3'];
+
+    const getShiftsForRoleAndDay = (role, day) => {
+        return shifts.filter(shift => shift.role === role && shift.day === day);
+    }
+
   return (
     <div className="p-6">
       {/* PageHeading */}
@@ -59,47 +109,26 @@ export default function SchedulingPage() {
               <thead className="bg-gray-50 dark:bg-[#283039]">
                 <tr>
                   <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Role</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Mon, Oct 28</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Tue, Oct 29</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Wed, Oct 30</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Thu, Oct 31</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Fri, Nov 1</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Sat, Nov 2</th>
-                  <th className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">Sun, Nov 3</th>
+                  {days.map(day => (
+                     <th key={day} className="w-48 px-4 py-3 text-sm font-medium text-gray-600 dark:text-white">{day}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-[#3b4754]">
-                {/* Shift Cards would be draggable items within these cells */}
-                <tr>
-                  <td className="h-24 align-top p-2 text-sm font-medium text-gray-800 dark:text-white">Cook</td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-red-400 bg-red-400/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Jane D.</p><p className="text-gray-600 dark:text-gray-300">9AM - 5PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-red-400 bg-red-400/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">John S.</p><p className="text-gray-600 dark:text-gray-300">9AM - 5PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-red-400 bg-red-400/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Jane D.</p><p className="text-gray-600 dark:text-gray-300">9AM - 5PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-red-400 bg-red-400/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">John S.</p><p className="text-gray-600 dark:text-gray-300">9AM - 5PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-red-400 bg-red-400/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Jane D.</p><p className="text-gray-600 dark:text-gray-300">11AM - 7PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-red-400 bg-red-400/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">John S.</p><p className="text-gray-600 dark:text-gray-300">11AM - 7PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 p-2 text-center text-xs text-gray-500 dark:text-gray-400"><p>Unassigned</p><p>11AM - 7PM</p></div></div></td>
-                </tr>
-                <tr>
-                  <td className="h-24 align-top p-2 text-sm font-medium text-gray-800 dark:text-white">Driver</td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-green-500 bg-green-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Mike R.</p><p className="text-gray-600 dark:text-gray-300">5PM - 11PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-green-500 bg-green-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Sarah L.</p><p className="text-gray-600 dark:text-gray-300">5PM - 11PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-green-500 bg-green-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Mike R.</p><p className="text-gray-600 dark:text-gray-300">5PM - 11PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 p-2 text-center text-xs text-gray-500 dark:text-gray-400"><p>Unassigned</p><p>5PM - 11PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-green-500 bg-green-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Sarah L.</p><p className="text-gray-600 dark:text-gray-300">5PM - 11PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-green-500 bg-green-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Mike R.</p><p className="text-gray-600 dark:text-gray-300">5PM - 11PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-green-500 bg-green-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Sarah L.</p><p className="text-gray-600 dark:text-gray-300">5PM - 11PM</p></div></div></td>
-                </tr>
-                <tr>
-                  <td className="h-24 align-top p-2 text-sm font-medium text-gray-800 dark:text-white">Front of House</td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Emily C.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Emily C.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">David P.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Emily C.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">David P.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">Emily C.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                  <td className="h-24 align-top p-1"><div className="flex h-full w-full flex-col gap-1"><div className="cursor-pointer rounded-lg border-l-4 border-blue-500 bg-blue-500/20 p-2 text-xs"><p className="font-bold text-gray-800 dark:text-white">David P.</p><p className="text-gray-600 dark:text-gray-300">12PM - 8PM</p></div></div></td>
-                </tr>
+                {roles.map(role => (
+                    <tr key={role}>
+                        <td className="h-24 align-top p-2 text-sm font-medium text-gray-800 dark:text-white">{role}</td>
+                        {days.map(day => (
+                            <td key={day} className="h-24 align-top p-1">
+                                <div className="flex h-full w-full flex-col gap-1">
+                                    {getShiftsForRoleAndDay(role, day).map(shift => (
+                                        <ShiftCard key={shift.id} shift={shift} />
+                                    ))}
+                                </div>
+                            </td>
+                        ))}
+                    </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -120,11 +149,14 @@ export default function SchedulingPage() {
               <input className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 pl-10 pr-4 py-2 text-sm focus:ring-primary focus:border-primary" placeholder="Search employees..." type="text" />
             </div>
             <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-              <div className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 cursor-grab"><div className="w-8 h-8 rounded-full bg-cover bg-center" data-alt="Avatar of Jane D." style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDv7cDK_Bp6ZAVPbuXCp5c-CWgMBlakgwHgLo259cj0u1JxoVzTRB-oexRDPNK2aRg9qpuWcZiyw31UfQ4nJKhoA5n-VDfGgdv8hnwegkDE7ODNQrg_xa6E_et15BXCUj6LZ-Nycwan4nFsNtXsgLeT49j0pPShi7m9z49SodZNFLcIrSdDiIppMzW_uzA97S0oZqeA_RfDsg0Q8GNioQeNBUIJzA9Z0SAUqiK9tU4IOy3EBp9qAp5mVgFY46PVvRo97kwLnSYLNGY')"}}></div><div><p className="font-medium text-sm text-gray-800 dark:text-white">Jane D.</p><p className="text-xs text-gray-500 dark:text-gray-400">Cook</p></div></div>
-              <div className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 cursor-grab"><div className="w-8 h-8 rounded-full bg-cover bg-center" data-alt="Avatar of John S." style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnQ3gldW-oZ9O1a3Udg0KUyNU2IE-oqhzFI-74kEUKGdWeQiQ0XU8nB9P4Ul2FXIRaCJ8G4D6B9ZRvRWGR3XMHStH_WQAoxMNhBE5MJYa7soi58lAWZXpZpnVYW80TVQqHHybpe5EgMFJqCupuaY3qO5ZiijYpiw43dzHFTk6_Pe_ld4xZfj_wLqkHRIqINLVJj9CE9pqSmC6n8kgKO_mNclttjpjM2PkL6QDU6rl7VkMbS6LY_8z8231lWzvnPSToo1FdXPIO9eQ')"}}></div><div><p className="font-medium text-sm text-gray-800 dark:text-white">John S.</p><p className="text-xs text-gray-500 dark:text-gray-400">Cook</p></div></div>
-              <div className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 cursor-grab"><div className="w-8 h-8 rounded-full bg-cover bg-center" data-alt="Avatar of Mike R." style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAkvD0qv-8zPgs-nQSfleghe-c_aOaYp7Uatr4T34d-LezfMtI8qOSPWju921NSiGUM7lUpjbbGzoX6963Sx7HDOUqQI7TslhUEgLoB61OwVFWjSquL1zA7CabibwOfgbkcVmt7zz8BTqVdovcpYSqYhtrDNRYYAE4p0JMmdsuVimfZQ3_nMWRrJ6gKpHHD1IzUG44NSl3Tzs2MBDWXEOPGXrwtx6R0NlPqAhL0He4HtMybijPUnq1dqDqd8ILLLHtdNd0bHAaV56Q')"}}></div><div><p className="font-medium text-sm text-gray-800 dark:text-white">Mike R.</p><p className="text-xs text-gray-500 dark:text-gray-400">Driver</p></div></div>
-              <div className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 cursor-grab"><div className="w-8 h-8 rounded-full bg-cover bg-center" data-alt="Avatar of Sarah L." style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCKHp8UaCLVU5g7tD2CjPu2aboYmkF-PtItvCUj0Y_XKT_r7HVjie_nXBBBWGO9E_y8YZ3ub880s2m_xkJH_O0c3NWC_emJTdRFV97ZNs-EpSb9RAuHtZaeFnUWOPgghG_aXYn5rNbGSvVAXKrUBRzj_5JeJYCVp7BLCSa9b8FjkIZ4fvNkLFWmLcwGN-0wC5HRSgfTr4bnyd3N1XFz4spLZajTDfK7pP8P6ygz8OIZFeS6OpmcnndrXcaeFru7qFP7m6aG4Z7orEs')"}}></div><div><p className="font-medium text-sm text-gray-800 dark:text-white">Sarah L.</p><p className="text-xs text-gray-500 dark:text-gray-400">Driver</p><span className="ml-2 text-xs font-semibold bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">Overflow</span></div></div>
-              <div className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 cursor-grab"><div className="w-8 h-8 rounded-full bg-cover bg-center" data-alt="Avatar of Emily C." style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAgdNbZ-lRaYALyL3dSU-z_KZYtFhYtdTpNyc-3EQzqVtPbjKLgZQLB-UBHBnE5uHze_ltxe3kqf6I4laumwZGvRq683cwglGjZ-rnLz5fyGdjKjTbcpRfqmYpLkCljCrpo0NCb6afIVc6-f8-JACe80vtrG6GJvkunG2U4eNYjg4RaXV-13DTwD0pjb-ZZo2YuYXk92VCIR3pEb9ZJ3-6jyN6pkrA395SePFsaijYk8unaf2aH8RKhCQNcRu2FkGxneYjZBz7oHIw')"}}></div><div><p className="font-medium text-sm text-gray-800 dark:text-white">Emily C.</p><p className="text-xs text-gray-500 dark:text-gray-400">Front of House</p></div></div>
+                {employees.map(employee => (
+                    <div key={employee.id} className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800/50 cursor-grab">
+                        <div>
+                            <p className="font-medium text-sm text-gray-800 dark:text-white">{employee.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{employee.role}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
           </div>
           {/* Contextual Info */}
