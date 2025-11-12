@@ -53,7 +53,7 @@ function App() {
         <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboardLayout><AdminDashboard /></AdminDashboardLayout></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrderDashboardLayout><Dashboard /></OrderDashboardLayout></ProtectedRoute>} />
         <Route path="/all-orders" element={<ProtectedRoute><DefaultLayout><AllOrders /></DefaultLayout></ProtectedRoute>} />
-        <Route path="/menu" element={<ProtectedRoute><DefaultLayout><Menu /></DefaultLayout></ProtectedRoute>} />
+        <Route path="/menu" element={<ProtectedRoute><OrderDashboardLayout><Menu /></OrderDashboardLayout></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><DefaultLayout><Analytics /></DefaultLayout></ProtectedRoute>} />
         <Route path="/scheduling" element={<ProtectedRoute><SchedulingLayout><SchedulingPage /></SchedulingLayout></ProtectedRoute>} />
         <Route path="/scheduling-alt" element={<ProtectedRoute><SchedulingAltLayout><SchedulingAltPage /></SchedulingAltLayout></ProtectedRoute>} />

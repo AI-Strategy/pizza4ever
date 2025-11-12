@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { orders } from '../mock-data';
+import AddItemModal from '../components/AddItemModal';
 
 // Create a unique list of menu items from the orders data
-const menuItems = orders.flatMap(order => order.items.map(item => item.name))
+const initialMenuItems = orders.flatMap(order => order.items.map(item => item.name))
   .filter((value, index, self) => self.indexOf(value) === index)
   .map((name, index) => ({
     id: index + 1,
@@ -13,11 +15,21 @@ const menuItems = orders.flatMap(order => order.items.map(item => item.name))
 
 
 export default function Menu() {
+  const [menuItems, setMenuItems] = useState(initialMenuItems);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddItem = (newItem) => {
+    setMenuItems(currentItems => [newItem, ...currentItems]);
+  };
+
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Our Menu</h1>
-        <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+        >
             <span className="material-symbols-outlined">add</span>
             Add New Item
         </button>
@@ -38,6 +50,11 @@ export default function Menu() {
           </div>
         ))}
       </div>
+      <AddItemModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddItem={handleAddItem}
+      />
     </div>
   );
 }
