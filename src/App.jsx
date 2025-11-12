@@ -17,6 +17,7 @@ import VendorOrdersPage from './pages/VendorOrdersPage';
 import IntegrationsPage from './pages/IntegrationsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
+import Newsletter from './pages/Newsletter';
 import { useState } from 'react';
 
 // A mock auth object
@@ -49,6 +50,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage onLogin={login} />} />
+        <Route path="/newsletter" element={<Newsletter />} />
         <Route path="/" element={<ProtectedRoute><OrderDashboardLayout><Dashboard /></OrderDashboardLayout></ProtectedRoute>} />
         <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboardLayout><AdminDashboard /></AdminDashboardLayout></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrderDashboardLayout><Dashboard /></OrderDashboardLayout></ProtectedRoute>} />

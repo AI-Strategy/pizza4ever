@@ -57,6 +57,20 @@ app.post('/login', (req, res) => {
 });
 
 // Checkout Endpoint (Public)
+app.post('/api/newsletter-signup', (req, res) => {
+    const { email, firstName } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // In a real application, you would add the email to a database or mailing list.
+    // For this mock backend, we'll just simulate a success response.
+    console.log(`New newsletter signup: ${email} (First Name: ${firstName || 'N/A'})`);
+
+    res.status(200).json({ message: 'Successfully subscribed!' });
+});
+
 app.post('/api/checkout', (req, res) => {
     const newOrder = req.body;
 

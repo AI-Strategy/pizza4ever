@@ -8,6 +8,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        "primary": "#FF4500",
+        "background-light": "#F8F9FA",
+        "background-dark": "#181A1B",
+        "text-light": "#212529",
+        "text-dark": "#E8E6E3",
+        "subtle-light": "#6C757D",
+        "subtle-dark": "#A9A9A9",
+        "border-light": "#DEE2E6",
+        "border-dark": "#343A40",
+        "input-bg-light": "#FFFFFF",
+        "input-bg-dark": "#212529",
         "p4e-orange": "#E8772E",
         "p4e-orange-dark": "#D46A29",
         "p4e-grey-dark": "#333333",
@@ -23,6 +34,7 @@ export default {
       fontFamily: {
         display: ["Space Grotesk", "sans-serif"],
         body: ["Roboto", "sans-serif"],
+        montserrat: ["Montserrat", "sans-serif"],
       },
       borderRadius: {
         DEFAULT: "8px",
@@ -32,5 +44,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 }
