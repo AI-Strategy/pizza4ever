@@ -76,6 +76,32 @@ export const orders = [
     items: [{ name: 'Cheese Pizza', quantity: 1 }],
     total: 15.00,
   },
+  {
+    id: '#P4E-1253',
+    customer: 'David B.',
+    type: 'Delivery',
+    status: 'New',
+    time: '12 mins ago',
+    items: 1,
+    due: '18 min',
+    details: '1x Veggie Pizza',
+    notes: 'No mushrooms.',
+    paid: true,
+  },
+  {
+    id: '#P4E-1252',
+    customer: 'Emily S.',
+    type: 'Pickup',
+    status: 'In Progress',
+    time: 'Cooking: 2/10 min',
+  },
+  {
+    id: '#P4E-1251',
+    customer: 'Michael J.',
+    type: 'Delivery',
+    status: 'Ready',
+    time: 'Ready for 5 min',
+  },
 ];
 
 export const salesData = {
