@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import DefaultLayout from './layouts/DefaultLayout';
 import OrderDashboardLayout from './layouts/OrderDashboardLayout';
 import AdminDashboardLayout from './layouts/AdminDashboardLayout';
+import SchedulingLayout from './layouts/SchedulingLayout';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AllOrders from './pages/AllOrders';
@@ -50,7 +51,7 @@ function App() {
         <Route path="/all-orders" element={<ProtectedRoute><DefaultLayout><AllOrders /></DefaultLayout></ProtectedRoute>} />
         <Route path="/menu" element={<ProtectedRoute><DefaultLayout><Menu /></DefaultLayout></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><DefaultLayout><Analytics /></DefaultLayout></ProtectedRoute>} />
-        <Route path="/scheduling" element={<ProtectedRoute><DefaultLayout><SchedulingPage /></DefaultLayout></ProtectedRoute>} />
+        <Route path="/scheduling" element={<ProtectedRoute><SchedulingLayout><SchedulingPage /></SchedulingLayout></ProtectedRoute>} />
         <Route path="/vendor-orders" element={<ProtectedRoute><DefaultLayout><VendorOrdersPage /></DefaultLayout></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute><DefaultLayout><IntegrationsPage /></DefaultLayout></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><DefaultLayout><CheckoutPage /></DefaultLayout></ProtectedRoute>} />
