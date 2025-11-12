@@ -1,65 +1,58 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import DefaultLayout from './layouts/DefaultLayout';
-import OrderDashboardLayout from './layouts/OrderDashboardLayout';
-import AdminDashboardLayout from './layouts/AdminDashboardLayout';
-import SchedulingLayout from './layouts/SchedulingLayout';
-import VendorOrdersLayout from './layouts/VendorOrdersLayout';
-import IntegrationsLayout from './layouts/IntegrationsLayout';
-import SchedulingAltLayout from './layouts/SchedulingAltLayout';
-import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import AllOrders from './pages/AllOrders';
+import MainPublicLayout from './layouts/MainPublicLayout';
+import ShopLayout from './layouts/ShopLayout';
+import CateringLayout from './layouts/CateringLayout';
+
+// Import existing and new pages
+import HomePage from './pages/HomePage';
 import Menu from './pages/Menu';
-import Analytics from './pages/Analytics';
-import SchedulingPage from './pages/SchedulingPage';
-import SchedulingAltPage from './pages/SchedulingAltPage';
-import VendorOrdersPage from './pages/VendorOrdersPage';
-import IntegrationsPage from './pages/IntegrationsPage';
+import ReservationsPage from './pages/ReservationsPage';
+import CateringPage from './pages/CateringPage';
+import OurStoryPage from './pages/OurStoryPage';
+import ShopPage from './pages/ShopPage';
+import CareersPage from './pages/CareersPage';
+import CocktailsPage from './pages/CocktailsPage';
+import WineCurationPage from './pages/WineCurationPage';
 import CheckoutPage from './pages/CheckoutPage';
-import LoginPage from './pages/LoginPage';
-import { useState } from 'react';
+import LocalEmployeeCardPage from './pages/LocalEmployeeCardPage';
 
-// A mock auth object
-const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem('isAuthenticated') === 'true');
+// For now, we will remove the auth logic to focus on UI development
+// You can re-integrate your auth logic here later
+// import LoginPage from './pages/LoginPage';
+// import useAuth from './hooks/useAuth'; // Assuming you move useAuth to a hook file
+// const ProtectedRoute = ({ children }) => { ... };
 
-  const login = () => {
-    localStorage.setItem('isAuthenticated', 'true');
-    setIsAuthenticated(true);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('isAuthenticated');
-    setIsAuthenticated(false);
-  };
-
-  return { isAuthenticated, login, logout };
-};
-
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
+const RouteWithLayout = ({ Layout, Component }) => (
+  <Layout>
+    <Component />
+  </Layout>
+);
 
 function App() {
-  const { login } = useAuth();
-
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage onLogin={login} />} />
-        <Route path="/" element={<ProtectedRoute><OrderDashboardLayout><Dashboard /></OrderDashboardLayout></ProtectedRoute>} />
-        <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboardLayout><AdminDashboard /></AdminDashboardLayout></ProtectedRoute>} />
-        <Route path="/orders" element={<ProtectedRoute><OrderDashboardLayout><Dashboard /></OrderDashboardLayout></ProtectedRoute>} />
-        <Route path="/all-orders" element={<ProtectedRoute><DefaultLayout><AllOrders /></DefaultLayout></ProtectedRoute>} />
-        <Route path="/menu" element={<ProtectedRoute><DefaultLayout><Menu /></DefaultLayout></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><DefaultLayout><Analytics /></DefaultLayout></ProtectedRoute>} />
-        <Route path="/scheduling" element={<ProtectedRoute><SchedulingLayout><SchedulingPage /></SchedulingLayout></ProtectedRoute>} />
-        <Route path="/scheduling-alt" element={<ProtectedRoute><SchedulingAltLayout><SchedulingAltPage /></SchedulingAltLayout></ProtectedRoute>} />
-        <Route path="/vendor-orders" element={<ProtectedRoute><VendorOrdersLayout><VendorOrdersPage /></VendorOrdersLayout></ProtectedRoute>} />
-        <Route path="/integrations" element={<ProtectedRoute><IntegrationsLayout><IntegrationsPage /></IntegrationsLayout></ProtectedRoute>} />
-        <Route path="/checkout" element={<ProtectedRoute><DefaultLayout><CheckoutPage /></DefaultLayout></ProtectedRoute>} />
+        {/* Public Routes with MainPublicLayout */}
+        <Route path="/" element={<RouteWithLayout Layout={MainPublicLayout} Component={HomePage} />} />
+        <Route path="/menu" element={<RouteWithLayout Layout={MainPublicLayout} Component={Menu} />} />
+        <Route path="/reservations" element={<RouteWithLayout Layout={MainPublicLayout} Component={ReservationsPage} />} />
+        <Route path="/our-story" element={<RouteWithLayout Layout={MainPublicLayout} Component={OurStoryPage} />} />
+        <Route path="/careers" element={<RouteWithLayout Layout={MainPublicLayout} Component={CareersPage} />} />
+        <Route path="/cocktails" element={<RouteWithLayout Layout={MainPublicLayout} Component={CocktailsPage} />} />
+        <Route path="/wine" element={<RouteWithLayout Layout={MainPublicLayout} Component={WineCurationPage} />} />
+        <Route path="/checkout" element={<RouteWithLayout Layout={MainPublicLayout} Component={CheckoutPage} />} />
+        <Route path="/local-employee-card" element={<RouteWithLayout Layout={MainPublicLayout} Component={LocalEmployeeCardPage} />} />
+
+        {/* Specialized Layouts */}
+        <Route path="/shop" element={<RouteWithLayout Layout={ShopLayout} Component={ShopPage} />} />
+        <Route path="/catering" element={<RouteWithLayout Layout={CateringLayout} Component={CateringPage} />} />
+
+        {/* You can add back your dashboard and protected routes here */}
+        {/* <Route path="/login" element={<LoginPage onLogin={login} />} /> */}
+        {/* <Route path="/dashboard" element={<ProtectedRoute><DefaultLayout><Dashboard /></ProtectedRoute>} /> */}
+
+        {/* Redirect any unknown paths to the homepage */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
