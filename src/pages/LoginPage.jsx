@@ -6,12 +6,38 @@ export default function LoginPage({ onLogin }) {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Basic validation
-    if (email && password) {
-      onLogin();
-      navigate('/');
+    setError('');
+
+    if (!email || !password) {
+      setError('Email and password are required.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const { user, token } = await response.json();
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('token', token);
+        onLogin(); // Notify App component of login
+        navigate('/');
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Invalid email or password.');
+      }
+    } catch (err) {
+      setError('Failed to connect to the server. Please try again later.');
     }
   };
 
@@ -101,6 +127,10 @@ export default function LoginPage({ onLogin }) {
                     </button>
                   </div>
                 </form>
+
+                {error && (
+                  <p className="text-center text-sm text-red-500">{error}</p>
+                )}
 
                 {/* Security Notice */}
                 <p className="text-center text-xs text-subtle-light dark:text-subtle-dark">For your security, you may be prompted for multi-factor authentication.</p>
