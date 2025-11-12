@@ -185,6 +185,50 @@ app.put('/api/time-off/requests/:requestId/status', authenticateToken, (req, res
     }
 });
 
+// Inventory Endpoints
+app.get('/api/inventory', authenticateToken, (req, res) => {
+    res.json(data.inventoryItems);
+});
+
+app.post('/api/inventory', authenticateToken, (req, res) => {
+    const newItem = req.body;
+    newItem.id = data.inventoryItems.length + 1000; // simple id generation
+    data.inventoryItems.push(newItem);
+    res.status(201).json(newItem);
+});
+
+app.put('/api/inventory/:itemId', authenticateToken, (req, res) => {
+    const item = data.inventoryItems.find(i => i.id === parseInt(req.params.itemId));
+    if (item) {
+        Object.assign(item, req.body);
+        res.json(item);
+    } else {
+        res.status(404).json({ message: 'Inventory item not found' });
+    }
+});
+
+// Vendor Order Endpoints
+app.get('/api/vendor-orders', authenticateToken, (req, res) => {
+    res.json(data.vendorOrders);
+});
+
+app.post('/api/vendor-orders', authenticateToken, (req, res) => {
+    const newOrder = req.body;
+    newOrder.id = `PO-00${data.vendorOrders.length + 755}`; // simple id generation
+    data.vendorOrders.unshift(newOrder);
+    res.status(201).json(newOrder);
+});
+
+app.put('/api/vendor-orders/:orderId/status', authenticateToken, (req, res) => {
+    const order = data.vendorOrders.find(o => o.id === req.params.orderId);
+    if (order) {
+        order.status = req.body.status;
+        res.json(order);
+    } else {
+        res.status(404).json({ message: 'Vendor order not found' });
+    }
+});
+
 app.post('/api/orders/:orderId/ready', authenticateToken, (req, res) => {
     const order = findOrder(req.params.orderId);
     if (order) {

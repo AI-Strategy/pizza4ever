@@ -130,12 +130,18 @@ const schedule = {
     }
 };
 
-const inventory = {
-    'Dough': { level: 85, status: 'Sufficient' },
-    'Cheese': { level: 60, status: 'Sufficient' },
-    'Tomato Sauce': { level: 35, status: 'Low' },
-    'Pepperoni': { level: 15, status: 'Critical' },
-};
+const inventoryItems = [
+    { id: 1001, name: '00 Flour', category: 'Dry Goods', onHand: '50 lbs', parLevel: '50 lbs', status: 'In Stock', lastUpdated: '2h ago' },
+    { id: 2015, name: 'Pepperoni', category: 'Proteins', onHand: '5 lbs', parLevel: '20 lbs', status: 'Low Stock', lastUpdated: '4h ago' },
+    { id: 3002, name: 'San Marzano Tomatoes', category: 'Produce', onHand: '35 lbs', parLevel: '25 lbs', status: 'Excess', lastUpdated: '1d ago' },
+    { id: 4001, name: 'Pizza Dough', category: 'Dough', onHand: '100 units', parLevel: '100 units', status: 'In Stock', lastUpdated: '1h ago' },
+];
+
+const vendorOrders = [
+    { id: 'PO-00754', vendor: 'Sierra Produce Co.', date: 'Oct 26, 2023', status: 'Delivered', total: 450.00 },
+    { id: 'PO-00753', vendor: 'Mountain Meats', date: 'Oct 25, 2023', status: 'Shipped', total: 1280.50 },
+    { id: 'PO-00752', vendor: 'Tahoe Dairy Supply', date: 'Oct 24, 2023', status: 'Pending', total: 890.00 },
+];
 
 const timeOffRequests = [
     { id: 1, employeeId: 2, startDate: '2024-11-01', endDate: '2024-11-01', reason: 'Personal Day', status: 'Pending' },
@@ -158,7 +164,8 @@ module.exports = {
   orderStatusData,
   employees,
   schedule,
-  inventory,
+  inventoryItems,
+  vendorOrders,
   timeOffRequests,
   shifts
 };
