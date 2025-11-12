@@ -1,79 +1,28 @@
 import { useState, useEffect } from 'react';
-import KanbanBoard from '../components/KanbanBoard';
-import KanbanColumn from '../components/KanbanColumn';
-import OrderCard from '../components/OrderCard';
 import { orders as initialOrders } from '../mock-data';
-
-let orderCounter = 1260; // Start from a number higher than the mock data
 
 export default function Dashboard() {
   const [orders, setOrders] = useState(initialOrders);
+  const [lastUpdated, setLastUpdated] = useState('just now');
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setOrders(prevOrders => {
-        let newOrdersList = [...prevOrders];
-        let changed = false;
+      setOrders(currentOrders => {
+        const ordersInProgress = currentOrders.filter(o => o.status === 'In Progress');
+        const ordersNew = currentOrders.filter(o => o.status === 'New');
 
-        // Try to advance an order from "In Progress" to "Ready"
-        const inProgressIndex = newOrdersList.findIndex(o => o.status === 'In Progress');
-        if (inProgressIndex !== -1 && Math.random() > 0.7) { // 30% chance
-          const order = newOrdersList[inProgressIndex];
-          newOrdersList[inProgressIndex] = { ...order, status: 'Ready', time: 'Ready for 0 min' };
-          changed = true;
+        if (ordersInProgress.length > 0) {
+            const orderToReady = ordersInProgress[0];
+            return currentOrders.map(o => o.id === orderToReady.id ? {...o, status: 'Ready'} : o);
+        } else if (ordersNew.length > 0) {
+            const orderToProgress = ordersNew[0];
+            return currentOrders.map(o => o.id === orderToProgress.id ? {...o, status: 'In Progress'} : o);
         }
 
-        // If no order was advanced, try to move one from "New" to "In Progress"
-        if (!changed) {
-            const newIndex = newOrdersList.findIndex(o => o.status === 'New');
-            if (newIndex !== -1 && Math.random() > 0.5) { // 50% chance
-                const order = newOrdersList[newIndex];
-                newOrdersList[newIndex] = { ...order, status: 'In Progress', time: 'Cooking: 0/15 min' };
-                changed = true;
-            }
-        }
-
-        // Update timers for all orders
-        newOrdersList = newOrdersList.map(order => {
-            if (order.status === 'Ready' && order.time.startsWith('Ready for')) {
-                const minutes = parseInt(order.time.match(/(\\d+)/)[0] || '0') + 1;
-                return { ...order, time: `Ready for ${minutes} min`};
-            }
-            if (order.status === 'In Progress' && order.time && order.time.startsWith('Cooking')) {
-                const parts = order.time.match(/(\\d+)\/(\\d+)/);
-                if (parts) {
-                    let current = parseInt(parts[1]);
-                    const total = parseInt(parts[2]);
-                    if (current < total) {
-                        return { ...order, time: `Cooking: ${current + 1}/${total} min` };
-                    }
-                }
-            }
-            if (order.status === 'New' && order.time.endsWith('ago')) {
-                 const minutes = parseInt(order.time.match(/(\\d+)/)[0] || '0') + 1;
-                 return { ...order, time: `${minutes} mins ago`};
-            }
-            return order;
-        });
-
-        // Add a new order occasionally
-        if (Math.random() > 0.85) { // 15% chance
-          const newOrder = {
-            id: `#P4E-${orderCounter++}`,
-            customer: 'New Customer',
-            type: Math.random() > 0.5 ? 'Delivery' : 'Pickup',
-            status: 'New',
-            time: '1 min ago',
-            items: Math.floor(Math.random() * 5) + 1,
-            due: `${Math.floor(Math.random() * 15) + 10} min`,
-            paid: Math.random() > 0.3,
-          };
-          newOrdersList = [newOrder, ...newOrdersList];
-        }
-
-        return newOrdersList;
+        return currentOrders;
       });
-    }, 2000); // Update every 2 seconds
+      setLastUpdated('just now');
+    }, 5000); // Every 5 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -83,16 +32,178 @@ export default function Dashboard() {
   const readyOrders = orders.filter(order => order.status === 'Ready');
 
   return (
-    <KanbanBoard>
-      <KanbanColumn title="New Orders" count={newOrders.length}>
-        {newOrders.map(order => <OrderCard key={order.id} order={order} />)}
-      </KanbanColumn>
-      <KanbanColumn title="In Progress" count={inProgressOrders.length}>
-        {inProgressOrders.map(order => <OrderCard key={order.id} order={order} />)}
-      </KanbanColumn>
-      <KanbanColumn title="Ready" count={readyOrders.length}>
-        {readyOrders.map(order => <OrderCard key={order.id} order={order} />)}
-      </KanbanColumn>
-    </KanbanBoard>
+    <>
+      <header className="flex justify-between items-center gap-4 px-6 py-3 border-b border-slate-700 bg-background-light dark:bg-background-dark">
+        <div className="flex flex-wrap justify-between gap-3 flex-1">
+          <div className="flex min-w-72 flex-col gap-2">
+            <p className="text-slate-900 dark:text-white text-2xl font-bold leading-tight tracking-tight">Real-time Order Dashboard</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Last updated: {lastUpdated}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 dark:text-slate-300 text-sm">Accepting New Orders</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" value="" className="sr-only peer" defaultChecked />
+              <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-white/10">
+                <span className="material-symbols-outlined">notifications</span>
+            </button>
+            <button className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-white/10">
+                <span className="material-symbols-outlined">account_circle</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="px-6 py-4 border-b border-slate-700 flex flex-col gap-4">
+        <div className="flex flex-col lg:flex-row gap-4 mb-4">
+            <div className="flex-grow p-4 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center gap-4">
+                <span className="material-symbols-outlined text-4xl text-blue-400">ac_unit</span>
+                <div>
+                    <p className="text-slate-900 dark:text-white font-bold">Heavy Snowfall Expected</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Lake Tahoe: 8-12 inches. Expect increased delivery volume and potential delays.</p>
+                </div>
+            </div>
+            <div className="flex-grow p-4 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center gap-4">
+                <span className="material-symbols-outlined text-4xl text-primary">celebration</span>
+                <div>
+                    <p className="text-slate-900 dark:text-white font-bold">Holiday: President's Day</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Holiday hours are in effect. Anticipate higher than normal order volumes all day.</p>
+                </div>
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg flex items-start gap-4">
+                <div className="bg-primary/20 text-primary p-3 rounded-lg"><span className="material-symbols-outlined">schedule</span></div>
+                <div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Avg. Delivery Time</p>
+                    <p className="text-slate-900 dark:text-white text-2xl font-bold">28 min</p>
+                </div>
+            </div>
+             <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg flex items-start gap-4">
+                <div className="bg-primary/20 text-primary p-3 rounded-lg"><span className="material-symbols-outlined">shopping_bag</span></div>
+                <div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Avg. Pick-up Time</p>
+                    <p className="text-slate-900 dark:text-white text-2xl font-bold">15 min</p>
+                </div>
+            </div>
+             <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg flex items-start gap-4">
+                <div className="bg-primary/20 text-primary p-3 rounded-lg"><span className="material-symbols-outlined">receipt_long</span></div>
+                <div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Orders Per Hour</p>
+                    <p className="text-slate-900 dark:text-white text-2xl font-bold">12</p>
+                </div>
+            </div>
+             <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg flex items-start gap-4">
+                <div className="bg-primary/20 text-primary p-3 rounded-lg"><span className="material-symbols-outlined">attach_money</span></div>
+                <div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Today's Sales</p>
+                    <p className="text-slate-900 dark:text-white text-2xl font-bold">$1,234.56</p>
+                </div>
+            </div>
+        </div>
+
+        <label className="flex flex-col min-w-40 h-12 w-full max-w-md mt-4">
+            <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
+                <div className="text-slate-400 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
+                    <span className="material-symbols-outlined">search</span>
+                </div>
+                <input className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 text-base font-normal leading-normal" placeholder="Search by Order ID or Customer Name" value=""/>
+            </div>
+        </label>
+      </div>
+
+      <div className="flex-1 flex gap-6 p-6 overflow-x-auto">
+        <div className="flex-shrink-0 w-96 flex flex-col gap-4">
+            <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-2 flex items-center gap-2">New Orders <span className="bg-primary/20 text-primary text-sm font-bold px-2 py-1 rounded-full">{newOrders.length}</span></h2>
+            <div className="flex flex-col gap-4">
+                {newOrders.map(order => (
+                    <div key={order.id} className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl shadow-md border border-primary/50">
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex flex-col">
+                                <p className="font-bold text-slate-800 dark:text-white text-lg">{order.id}</p>
+                                <p className="text-slate-600 dark:text-slate-300">{order.customer}</p>
+                            </div>
+                            <div className="flex items-center gap-2 bg-[#3498DB]/20 text-[#3498DB] px-3 py-1 rounded-full text-sm font-medium">
+                                <span className="material-symbols-outlined text-base">{order.type === 'Delivery' ? 'delivery_dining' : 'shopping_bag'}</span>
+                                <span>{order.type}</span>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-500 dark:text-slate-400 text-sm mb-4">
+                            <span>{order.time}</span>
+                            <span className="font-semibold">{order.items.length} Items</span>
+                            <span>Due in: {order.due}</span>
+                        </div>
+                        <div className="border-t border-slate-700 pt-3 mb-4">
+                            <p className="text-slate-600 dark:text-slate-300 text-sm">1x Pepperoni Pizza, 1x Garlic Knots, 1x Coke</p>
+                            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1"><span className="font-semibold">Notes:</span> {order.notes}</p>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-green-400 font-bold">PAID</span>
+                            <button className="flex w-full max-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                                <span className="truncate">Accept Order</span>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+        <div className="flex-shrink-0 w-96 flex flex-col gap-4">
+            <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-2 flex items-center gap-2">In Progress <span className="bg-[#3498DB]/20 text-[#3498DB] text-sm font-bold px-2 py-1 rounded-full">{inProgressOrders.length}</span></h2>
+            <div className="flex flex-col gap-4">
+                {inProgressOrders.map(order => (
+                    <div key={order.id} className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl shadow-md">
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex flex-col">
+                                <p className="font-bold text-slate-800 dark:text-white text-lg">{order.id}</p>
+                                <p className="text-slate-600 dark:text-slate-300">{order.customer}</p>
+                            </div>
+                            <div className="flex items-center gap-2 bg-[#9B59B6]/20 text-[#9B59B6] px-3 py-1 rounded-full text-sm font-medium">
+                                <span className="material-symbols-outlined text-base">{order.type === 'Delivery' ? 'delivery_dining' : 'shopping_bag'}</span>
+                                <span>{order.type}</span>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-500 dark:text-slate-400 text-sm mb-4">
+                            <span className="font-semibold text-[#3498DB]">Cooking: 5/15 min</span>
+                        </div>
+                        <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#3498DB] text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                            <span className="truncate">Mark as Ready</span>
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+        <div className="flex-shrink-0 w-96 flex flex-col gap-4">
+            <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-2 flex items-center gap-2">Ready <span className="bg-[#27AE60]/20 text-[#27AE60] text-sm font-bold px-2 py-1 rounded-full">{readyOrders.length}</span></h2>
+            <div className="flex flex-col gap-4">
+                {readyOrders.map(order => (
+                    <div key={order.id} className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl shadow-md">
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex flex-col">
+                                <p className="font-bold text-slate-800 dark:text-white text-lg">{order.id}</p>
+                                <p className="text-slate-600 dark:text-slate-300">{order.customer}</p>
+                            </div>
+                            <div className="flex items-center gap-2 bg-[#9B59B6]/20 text-[#9B59B6] px-3 py-1 rounded-full text-sm font-medium">
+                                <span className="material-symbols-outlined text-base">{order.type === 'Delivery' ? 'delivery_dining' : 'shopping_bag'}</span>
+                                <span>{order.type}</span>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-500 dark:text-slate-400 text-sm mb-4">
+                            <span className="font-semibold text-[#27AE60]">Ready for 3 min</span>
+                        </div>
+                        <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                            <span className="truncate">Complete Order</span>
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+      </div>
+    </>
   );
 }
