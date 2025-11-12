@@ -43,13 +43,7 @@ export default function Dashboard() {
             return order;
         });
 
-        // 2. Move a 'New' order to 'In Progress'
-        const newOrderToProgress = updatedOrders.find(o => o.status === 'New');
-        if (newOrderToProgress && Math.random() > 0.5) { // 50% chance to move an order
-            updatedOrders = updatedOrders.map(o => o.id === newOrderToProgress.id ? {...o, status: 'In Progress', startTime: Date.now() } : o);
-        }
-
-        // 3. Occasionally add a new order
+        // 2. Occasionally add a new order
         if (Math.random() > 0.8) { // 20% chance to add a new order each tick
             const newOrder = generateNewOrder(updatedOrders);
             updatedOrders.push(newOrder);
@@ -72,6 +66,26 @@ export default function Dashboard() {
     const interval = setInterval(runSimulationTick, 2000); // Run simulation every 2 seconds
     return () => clearInterval(interval);
   }, [runSimulationTick]);
+
+  const handleAcceptOrder = (orderId) => {
+    setOrders(currentOrders =>
+      currentOrders.map(o =>
+        o.id === orderId ? { ...o, status: 'In Progress', startTime: Date.now() } : o
+      )
+    );
+  };
+
+  const handleMarkAsReady = (orderId) => {
+    setOrders(currentOrders =>
+      currentOrders.map(o =>
+        o.id === orderId ? { ...o, status: 'Ready', time: 'Ready just now', createdAt: Date.now() } : o
+      )
+    );
+  };
+
+  const handleCompleteOrder = (orderId) => {
+    setOrders(currentOrders => currentOrders.filter(o => o.id !== orderId));
+  };
 
   const newOrders = orders.filter(order => order.status === 'New');
   const inProgressOrders = orders.filter(order => order.status === 'In Progress');
@@ -192,7 +206,7 @@ export default function Dashboard() {
                         }
                         <div className="flex justify-between items-center">
                             {order.paid && <span className="text-green-400 font-bold">PAID</span>}
-                            <button className="flex w-full max-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                            <button onClick={() => handleAcceptOrder(order.id)} className="flex w-full max-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
                                 <span className="truncate">Accept Order</span>
                             </button>
                         </div>
@@ -221,7 +235,7 @@ export default function Dashboard() {
                         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mb-4">
                             <div className="bg-blue-400 h-2.5 rounded-full" style={{ width: `${((Date.now() - order.startTime) / 1000 / order.cookTime) * 100}%` }}></div>
                         </div>
-                        <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#3498DB] text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                        <button onClick={() => handleMarkAsReady(order.id)} className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#3498DB] text-white text-sm font-bold leading-normal tracking-[0.015em]">
                             <span className="truncate">Mark as Ready</span>
                         </button>
                     </div>
@@ -246,7 +260,7 @@ export default function Dashboard() {
                         <div className="flex justify-between items-center text-slate-500 dark:text-slate-400 text-sm mb-4">
                             <span className="font-semibold text-[#27AE60]">{order.time}</span>
                         </div>
-                        <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                        <button onClick={() => handleCompleteOrder(order.id)} className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold leading-normal tracking-[0.015em]">
                             <span className="truncate">Complete Order</span>
                         </button>
                     </div>
