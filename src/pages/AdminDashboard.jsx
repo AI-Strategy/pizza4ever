@@ -1,110 +1,142 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Chart } from 'chart.js/auto';
 
 export default function AdminDashboard() {
-  useEffect(() => {
-    // Sales Trend Chart
-    const salesCtx = document.getElementById('salesChart')?.getContext('2d');
-    if (salesCtx) {
-      new Chart(salesCtx, {
-        type: 'line',
-        data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-          datasets: [{
-            label: 'Sales ($)',
-            data: [520, 780, 650, 920, 850, 1100, 950],
-            borderColor: '#BF5700',
-            backgroundColor: 'rgba(191, 87, 0, 0.1)',
-            fill: true,
-            tension: 0.4,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: 'rgba(245, 245, 220, 0.1)' },
-              ticks: { color: '#F5F5DC', font: { family: 'Space Grotesk' } }
-            },
-            x: {
-              grid: { display: false },
-              ticks: { color: '#F5F5DC', font: { family: 'Space Grotesk' } }
-            }
-          }
-        }
-      });
-    }
+  const [stats, setStats] = useState(null);
+  const [salesTrend, setSalesTrend] = useState([]);
+  const [orderStatus, setOrderStatus] = useState(null);
 
-    // Order Status Chart
-    const orderStatusCtx = document.getElementById('orderStatusChart')?.getContext('2d');
-    if (orderStatusCtx) {
-      new Chart(orderStatusCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Pending', 'In Progress', 'Out for Delivery', 'Completed'],
-          datasets: [{
-            data: [12, 8, 5, 99],
-            backgroundColor: ['#BF5700', '#FFD700', '#2F4F4F', '#36454F'],
-            borderWidth: 0,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: {
-              display: false
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Handle case where user is not logged in
+        return;
+      }
+
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      try {
+        const [statsRes, salesTrendRes, orderStatusRes] = await Promise.all([
+          fetch('http://localhost:3001/api/dashboard/stats', { headers }),
+          fetch('http://localhost:3001/api/dashboard/sales-trend?period=daily', { headers }),
+          fetch('http://localhost:3001/api/dashboard/order-status', { headers }),
+        ]);
+
+        setStats(await statsRes.json());
+        setSalesTrend(await salesTrendRes.json());
+        setOrderStatus(await orderStatusRes.json());
+
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    let salesChartInstance;
+    if (salesTrend.length > 0) {
+      const salesCtx = document.getElementById('salesChart')?.getContext('2d');
+      if (salesCtx) {
+        salesChartInstance = new Chart(salesCtx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Sales ($)',
+              data: salesTrend,
+              borderColor: '#BF5700',
+              backgroundColor: 'rgba(191, 87, 0, 0.1)',
+              fill: true,
+              tension: 0.4,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, grid: { color: 'rgba(245, 245, 220, 0.1)' }, ticks: { color: '#F5F5DC', font: { family: 'Space Grotesk' } } },
+              x: { grid: { display: false }, ticks: { color: '#F5F5DC', font: { family: 'Space Grotesk' } } }
             }
           }
-        }
-      });
+        });
+      }
     }
-  }, []);
+    return () => salesChartInstance?.destroy();
+  }, [salesTrend]);
+
+  useEffect(() => {
+    let orderStatusChartInstance;
+    if (orderStatus) {
+      const orderStatusCtx = document.getElementById('orderStatusChart')?.getContext('2d');
+      if (orderStatusCtx) {
+        orderStatusChartInstance = new Chart(orderStatusCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Pending', 'In Progress', 'Out for Delivery', 'Completed'],
+            datasets: [{
+              data: [orderStatus.pending, orderStatus.inProgress, orderStatus.delivery, orderStatus.completed],
+              backgroundColor: ['#BF5700', '#FFD700', '#2F4F4F', '#36454F'],
+              borderWidth: 0,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+    }
+    return () => orderStatusChartInstance?.destroy();
+  }, [orderStatus]);
+
 
   return (
     <div className="flex-1 overflow-y-auto bg-charcoal/[.02] p-4 dark:bg-black/20 sm:p-6">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Stat Cards */}
-        <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Total Revenue</h3>
-            <span className="material-symbols-outlined text-primary">payments</span>
-          </div>
-          <p className="mt-2 text-3xl font-bold">$4,280.50</p>
-          <p className="mt-1 text-sm text-green-500">+2.5% vs yesterday</p>
-        </div>
-        <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Orders Today</h3>
-            <span className="material-symbols-outlined text-primary">shopping_cart</span>
-          </div>
-          <p className="mt-2 text-3xl font-bold">124</p>
-          <p className="mt-1 text-sm text-red-500">-1.2% vs yesterday</p>
-        </div>
-        <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Reservations</h3>
-            <span className="material-symbols-outlined text-primary">calendar_month</span>
-          </div>
-          <p className="mt-2 text-3xl font-bold">32</p>
-          <p className="mt-1 text-sm text-green-500">+10% vs yesterday</p>
-        </div>
-        <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Avg. Order Value</h3>
-            <span className="material-symbols-outlined text-primary">price_check</span>
-          </div>
-          <p className="mt-2 text-3xl font-bold">$34.52</p>
-          <p className="mt-1 text-sm text-green-500">+3.7% vs yesterday</p>
-        </div>
+        {stats ? (
+          <>
+            <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Total Revenue</h3>
+                <span className="material-symbols-outlined text-primary">payments</span>
+              </div>
+              <p className="mt-2 text-3xl font-bold">${stats.totalRevenue.value.toLocaleString()}</p>
+              <p className={`mt-1 text-sm ${stats.totalRevenue.change > 0 ? 'text-green-500' : 'text-red-500'}`}>{stats.totalRevenue.change}% vs yesterday</p>
+            </div>
+            <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Orders Today</h3>
+                <span className="material-symbols-outlined text-primary">shopping_cart</span>
+              </div>
+              <p className="mt-2 text-3xl font-bold">{stats.ordersToday.value}</p>
+              <p className={`mt-1 text-sm ${stats.ordersToday.change > 0 ? 'text-green-500' : 'text-red-500'}`}>{stats.ordersToday.change}% vs yesterday</p>
+            </div>
+            <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Reservations</h3>
+                <span className="material-symbols-outlined text-primary">calendar_month</span>
+              </div>
+              <p className="mt-2 text-3xl font-bold">{stats.reservations.value}</p>
+              <p className={`mt-1 text-sm ${stats.reservations.change > 0 ? 'text-green-500' : 'text-red-500'}`}>{stats.reservations.change}% vs yesterday</p>
+            </div>
+            <div className="rounded-lg bg-background-light p-5 shadow-sm dark:bg-surface-dark">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Avg. Order Value</h3>
+                <span className="material-symbols-outlined text-primary">price_check</span>
+              </div>
+              <p className="mt-2 text-3xl font-bold">${stats.avgOrderValue.value}</p>
+              <p className={`mt-1 text-sm ${stats.avgOrderValue.change > 0 ? 'text-green-500' : 'text-red-500'}`}>{stats.avgOrderValue.change}% vs yesterday</p>
+            </div>
+          </>
+        ) : (
+          <p className="text-white">Loading stats...</p>
+        )}
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -128,12 +160,14 @@ export default function AdminDashboard() {
           <div className="mt-4 flex h-80 items-center justify-center">
             <canvas id="orderStatusChart"></canvas>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#BF5700]"></div><span>Pending (12)</span></div>
-            <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#FFD700]"></div><span>In Progress (8)</span></div>
-            <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#2F4F4F]"></div><span>Out for Delivery (5)</span></div>
-            <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#36454F]"></div><span>Completed (99)</span></div>
-          </div>
+          {orderStatus && (
+            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#BF5700]"></div><span>Pending ({orderStatus.pending})</span></div>
+              <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#FFD700]"></div><span>In Progress ({orderStatus.inProgress})</span></div>
+              <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#2F4F4F]"></div><span>Out for Delivery ({orderStatus.delivery})</span></div>
+              <div className="flex items-center gap-2"><div className="size-3 rounded-full bg-[#36454F]"></div><span>Completed ({orderStatus.completed})</span></div>
+            </div>
+          )}
         </div>
       </div>
 
