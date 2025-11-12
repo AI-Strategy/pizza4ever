@@ -4,6 +4,7 @@ import OrderDashboardLayout from './layouts/OrderDashboardLayout';
 import AdminDashboardLayout from './layouts/AdminDashboardLayout';
 import SchedulingLayout from './layouts/SchedulingLayout';
 import VendorOrdersLayout from './layouts/VendorOrdersLayout';
+import IntegrationsLayout from './layouts/IntegrationsLayout';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AllOrders from './pages/AllOrders';
@@ -54,7 +55,7 @@ function App() {
         <Route path="/analytics" element={<ProtectedRoute><DefaultLayout><Analytics /></DefaultLayout></ProtectedRoute>} />
         <Route path="/scheduling" element={<ProtectedRoute><SchedulingLayout><SchedulingPage /></SchedulingLayout></ProtectedRoute>} />
         <Route path="/vendor-orders" element={<ProtectedRoute><VendorOrdersLayout><VendorOrdersPage /></VendorOrdersLayout></ProtectedRoute>} />
-        <Route path="/integrations" element={<ProtectedRoute><DefaultLayout><IntegrationsPage /></DefaultLayout></ProtectedRoute>} />
+        <Route path="/integrations" element={<ProtectedRoute><IntegrationsLayout><IntegrationsPage /></IntegrationsLayout></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><DefaultLayout><CheckoutPage /></DefaultLayout></ProtectedRoute>} />
       </Routes>
     </Router>
