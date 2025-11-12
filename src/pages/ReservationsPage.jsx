@@ -17,7 +17,6 @@ const ReservationWidget = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, you'd handle form submission here
     alert('Reservation submitted!');
   };
 
@@ -60,7 +59,7 @@ const ReservationWidget = () => {
           <div className="border-t border-border-light dark:border-border-dark pt-8 space-y-6">
             <div className="space-y-2">
               <h3 className="text-xl font-bold">Your Information</h3>
-              <p>Please provide your contact details to secure your spot for <strong>{partySize} people</strong> at <strong>{location}</strong> on <strong>{date}</strong> at <strong>{time}</strong>.</p>
+              <p>Please provide your contact details to secure your spot for <strong>{partySize || 'N/A'} people</strong> at <strong>{location || 'N/A'}</strong> on <strong>{date || 'N/A'}</strong> at <strong>{time}</strong>.</p>
             </div>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <label className="flex flex-col">
@@ -83,7 +82,36 @@ const ReservationWidget = () => {
         )}
       </div>
     </div>
-);
+  );
+};
+
+const LocationsSection = () => {
+    const locations = [
+        { name: 'Truckee', address: '1001 Donner Pass Rd<br/>Truckee, CA 96161', phone: '(530) 587-1234' },
+        { name: 'Tahoe City', address: '395 N Lake Blvd<br/>Tahoe City, CA 96145', phone: '(530) 583-5678' },
+        { name: 'Incline Village', address: '937 Tahoe Blvd<br/>Incline Village, NV 89451', phone: '(775) 831-9012' },
+    ];
+
+    return (
+        <section className="py-20 md:py-32 px-4 md:px-6">
+            <div className="max-w-5xl mx-auto text-center space-y-4 mb-12">
+                <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Our Locations</h2>
+                <p className="text-text-muted-light dark:text-text-muted-dark max-w-2xl mx-auto text-lg">Find the Pizza 4 Ever nearest to you.</p>
+            </div>
+            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                {locations.map(loc => (
+                    <div key={loc.name} className="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark p-8 text-center space-y-4 flex flex-col items-center">
+                        <h3 className="text-2xl font-bold">{loc.name}</h3>
+                        <p className="text-text-muted-light dark:text-text-muted-dark flex-grow" dangerouslySetInnerHTML={{ __html: loc.address }}></p>
+                        <p className="text-lg font-medium">{loc.phone}</p>
+                        <a className="inline-flex items-center gap-2 text-primary font-bold text-base mt-2" href="#">Get Directions <span className="material-symbols-outlined">arrow_forward</span></a>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+};
+
 
 const ReservationsPage = () => {
     return (
@@ -96,7 +124,7 @@ const ReservationsPage = () => {
                 </div>
             </div>
             <ReservationWidget />
-            {/* Locations Section */}
+            <LocationsSection />
         </main>
     );
 };
