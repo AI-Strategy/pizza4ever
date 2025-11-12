@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary": "#E8772E",
+        "primary": "#f2590d",
         "background-light": "#f8f6f5",
         "background-dark": "#2C3E50",
         "slate": {
@@ -28,12 +28,18 @@ export default {
         }
       },
       fontFamily: {
-        "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"]
+        "display": ["Plus Jakarta Sans", "Noto Sans", "sans-serif"],
+        "body": ["Lato", "sans-serif"],
+        "heading": ["Playfair Display", "serif"],
+        "space": ["Space Grotesk", "sans-serif"],
+        "vietnam": ["Be Vietnam Pro", "sans-serif"],
+        "manrope": ["Manrope", "sans-serif"],
+        "montserrat": ["Montserrat", "sans-serif"],
       },
       borderRadius: {
-        "DEFAULT": "0.25rem",
-        "lg": "0.5rem",
-        "xl": "0.75rem",
+        "DEFAULT": "1rem",
+        "lg": "2rem",
+        "xl": "3rem",
         "full": "9999px"
       },
     },
